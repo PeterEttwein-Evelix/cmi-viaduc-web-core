@@ -29,3 +29,13 @@ export class CookieOptions {
 		});
 	}
 }
+
+// import {APP_BASE_HREF} from '@angular/common';
+// import {Inject, Injectable, Optional} from '@angular/core';
+//
+// @Injectable()
+// export class BaseCookieOptions extends CookieOptions {
+//     constructor(@Optional() @Inject(APP_BASE_HREF) private _baseHref: string) {
+//         super({path: _baseHref || '/'});
+//     }
+// }

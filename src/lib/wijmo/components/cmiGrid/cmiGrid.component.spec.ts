@@ -75,7 +75,7 @@ describe('CmiGridComponent', () => {
 
 	it(`should have set the correct default values`, () => {
 		expect(grid.defaultSortColumnKey).toBeFalsy();
-		expect(grid.checkedItems.length).toBe(0);
+		expect(grid.selectedItems.length).toBe(0);
 		expect(grid.selectionMode).toBe(3);
 		expect(grid.filter.defaultFilterType).toBe(FilterType.Condition);
 	});
@@ -106,6 +106,19 @@ describe('CmiGridComponent', () => {
 			expect(elem).toBeDefined();
 			expect(collectionView.sortDescriptions.length).toBe(1);
 			expect(elem.textContent).toEqual('CH');
+		});
+
+		it('should be able to sort descending a single column', () => {
+			const idHeader = gridNativeElement.querySelectorAll('.wj-row .wj-cell[role="columnheader"]')[0] as HTMLElement;
+			idHeader.click();
+			idHeader.click();
+
+			grid.refreshCells(true);
+			fixture.detectChanges();
+
+			const elem: Element | null = gridNativeElement.querySelectorAll('.wj-cells .wj-cell:not([role="columnheader"])')[0];
+			expect(elem).toBeDefined();
+			expect(elem.textContent).toEqual('5');
 		});
 
 		it('should be able to multisort on two columns', async(() => {
@@ -139,6 +152,22 @@ describe('CmiGridComponent', () => {
 			});
 		}));
 
+		it('should sort descending on default column', async(async() => {
+			grid.enableMultiSort = true;
+			grid.defaultSortColumnKey = 'Id';
+
+			grid.refresh(true);
+			fixture.detectChanges();
+
+			await fixture.whenRenderingDone();
+			fixture.detectChanges();
+
+			const elem: Element | null = gridNativeElement.querySelectorAll('.wj-cells .wj-cell:not([role="columnheader"])')[0];
+			expect(elem).toBeDefined();
+			expect(elem.textContent).toEqual('5');
+
+		}));
+
 		it('should save sortexpression in session', async(() => {
 			let spy = spyOn<Storage>(window.sessionStorage, 'setItem');
 
@@ -147,7 +176,7 @@ describe('CmiGridComponent', () => {
 			grid.refreshCells(true);
 			fixture.detectChanges();
 
-			let args = spy.calls.all().filter(c => (c.args[0] as string).indexOf('Sort') >= 0).map(c => c.args[1]);
+			let args = spy.calls.all().filter(c => c.args[0].indexOf('Sort') >= 0).map(c => c.args[1]);
 			let arg = args[0];
 			expect(arg).toBe( '[{"key":"Country","asc":true}]');
 		}));

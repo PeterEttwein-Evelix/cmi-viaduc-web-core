@@ -75,7 +75,7 @@ export class CmiGridComponent extends WjFlexGrid {
 	public onFilterApplied: EventEmitter<any> = new EventEmitter<any>();
 
 	/* Returns checkbox-selected items */
-	public get checkedItems(): any[] {
+	public get selectedItems(): any[] {
 		return Array.from(this.currentSelection.values());
 	}
 
@@ -329,19 +329,13 @@ export class CmiGridComponent extends WjFlexGrid {
 		this._updateFilterMaps();
 	}
 
-	private _restorePaging(isOData: boolean) {
+	private _restorePaging() {
 		let colView = this._getSourceAsCollectionView();
 
 		// Restoring Pageindex
 		let paging = this._getItem<number>(this.name + this._pagingGridSuffix);
-	
-		if (colView && paging !== null && paging !== undefined) {			
-		
-			if (isOData) {
-				colView._pgIdx = paging; // moveToPage does not work, so we have to use the private property..				
-			} else {
-				colView.moveToPage(paging);
-			}			
+		if (colView && paging !== null && paging !== undefined) {
+			colView._pgIdx = paging; // moveToPage does not work, so we have to use the private property..
 		}
 
 		// Restoring Pagingsize
@@ -364,7 +358,7 @@ export class CmiGridComponent extends WjFlexGrid {
 			this._restoreOdataFilter(oDataView);
 		}
 		
-		this._restorePaging(isOData);
+		this._restorePaging();
 		
 		setTimeout(() => {
 			this._restoreSelection(isOData ? oDataView : colView);

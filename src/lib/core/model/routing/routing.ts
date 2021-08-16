@@ -150,8 +150,7 @@ export class Routing {
 	}
 
 	public static dumpState(): void {
-		// Enable during debugging if required
-		// console.log('Routing state', this.localizations, this.normalizations);
+		console.log('Routing state', this.localizations, this.normalizations);
 	}
 
 }

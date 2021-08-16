@@ -295,7 +295,7 @@ export class Utilities {
 	}
 
 	public static isAngularMarkup(s: string): boolean {
-		return this.isHtmlMarkup(s) && ((s.indexOf('}}') >= 0) || s.indexOf('</ng-') >= 0 || s.indexOf('</cmi-') >= 0);
+		return this.isHtmlMarkup(s) && ((s.indexOf('}}') >= 0) || s.indexOf('</ng-') >= 0 || s.indexOf('</cmi-') >= 0); // TODO: improve
 	}
 
 	// endregion
