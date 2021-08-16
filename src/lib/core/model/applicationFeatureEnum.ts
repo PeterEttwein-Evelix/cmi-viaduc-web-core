@@ -52,5 +52,8 @@ export enum ApplicationFeatureEnum {
 	AuftragsuebersichtEinsichtsgesucheViewNichtSichtbar = 10000091,
 	BenutzerUndRollenBenutzerverwaltungFeldDigitalisierungsbeschraenkungBearbeiten = 10000092,
 	AuftragsuebersichtAuftraegeKannReponieren = 10000093,
-	AuftragsuebersichtAuftraegeMahnungVersenden = 10000094
+	AuftragsuebersichtAuftraegeMahnungVersenden = 10000094,
+	AuftragsuebersichtAuftraegeErinnerungVersenden = 10000095,
+	ReportingStatisticsReportsEinsehen = 10000096,
+	ReportingStatisticsConverterProgressEinsehen = 10000097
 }

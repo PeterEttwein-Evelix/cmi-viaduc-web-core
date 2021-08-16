@@ -2,7 +2,6 @@ import {Injectable} from '@angular/core';
 import {Utilities as _util} from '../includes';
 import {UserUiSettings} from '../model';
 import {PreloadService} from './preload.service';
-import {isNullOrUndefined} from 'util';
 
 @Injectable()
 export class ConfigService {
@@ -61,34 +60,6 @@ export class ConfigService {
 		}
 	}
 
-	/* ToDo: make it work again?
-        private _saveSetting2(container, key, value) {
-            let vs = container,
-              v,
-              ks = [],
-              k = '',
-              vt = vs;
-
-            if (vs) {
-                        if (vs.hasOwnProperty(key)) {
-                            // set by full (multi-part) key
-                            vs[key] = value;
-                        } else {
-                            ks = key.split('.');
-                            // set by name space
-                            while ((v === undefined) && vt && ks.length > 0) {
-                                k = ks.shift();
-                                vt = vt[k];
-                                v = vt ? vt[ks.join('.')] : undefined;
-                            }
-                            if (vt) {
-                                vt[ks.join('.')] = value;
-                            }
-                        }
-            }
-        }
-    */
-
 	public getSettings(): any {
 		if (!this._preloadService.settings) {
 			console.error(`preloader is NOT ready, but settings were already requested! Make sure you're using the preloaderResolver for your component. See callstack for more informations.`);
@@ -137,7 +108,7 @@ export class ConfigService {
 		}
 
 		// Setting default values from application config, if null or undef.
-		if (isNullOrUndefined(settings.showInfoWhenEmptySearchResult)) {
+		if (settings.showInfoWhenEmptySearchResult === null || settings.showInfoWhenEmptySearchResult === undefined) {
 			settings.showInfoWhenEmptySearchResult = true;
 		}
 
