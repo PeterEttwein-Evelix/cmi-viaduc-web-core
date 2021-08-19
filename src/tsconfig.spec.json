@@ -1,7 +1,6 @@
 {
 	"extends": "../tsconfig.json",
 	"compilerOptions": {
-		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
 		"outDir": "../out-tsc/spec",
 		"baseUrl": "./",
@@ -22,10 +21,10 @@
 	},
 	"files": [
 		"test.ts",
-	  "polyfills.ts"
-  ],
-  "include": [
-    "**/*.spec.ts",
-    "**/*.d.ts"
-  ]
+		"polyfills.ts"
+	],
+	"include": [
+		"**/*.spec.ts",
+		"**/*.d.ts"
+	]
 }
