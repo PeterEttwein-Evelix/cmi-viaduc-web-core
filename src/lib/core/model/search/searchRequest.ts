@@ -17,7 +17,6 @@ export interface SearchOptions {
 export interface FacetteFilter {
 	facet: string;
 	filters: string[];
-	showAll: boolean;
 }
 
 export interface CaptchaVerificationData {

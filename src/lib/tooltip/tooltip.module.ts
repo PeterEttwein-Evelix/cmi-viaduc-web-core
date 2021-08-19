@@ -17,6 +17,9 @@ export * from './components/tooltip-content.component';
 	exports: [
 		TooltipDirective,
 		TooltipContentComponent,
+	],
+	entryComponents: [
+		TooltipContentComponent
 	]
 })
 export class TooltipModule {

@@ -57,6 +57,7 @@ export class ClientContext {
 		node.src = `client/wijmo.culture.${language}.js`;
 		node.type = 'text/javascript';
 		node.async = true;
+		node.charset = 'utf-8';
 
 		let children = document.getElementsByTagName('head')[0].childNodes;
 		for (let i = 0; i < children.length; i++) {
