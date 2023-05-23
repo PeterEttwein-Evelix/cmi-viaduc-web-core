@@ -1,0 +1,464 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CMI.Web.Frontend</name>
+    </assembly>
+    <members>
+        <member name="T:CMI.Web.Frontend.api.Controllers.ExternalController">
+            <summary>
+                Controller for external (public) API.
+                Be careful with changes
+                a.) breaking changes requires another api version
+                b.) don't remove existing versions
+            </summary>
+        </member>
+        <member name="M:CMI.Web.Frontend.api.Controllers.ExternalController.#ctor(CMI.Web.Frontend.api.Interfaces.IEntityProvider)">
+            <summary>
+                Initializes a new instance of the <see cref="T:CMI.Web.Frontend.api.Controllers.ExternalController" /> class.
+            </summary>
+            <param name="entityProvider">The entity provider.</param>
+        </member>
+        <member name="M:CMI.Web.Frontend.api.Controllers.ExternalController.GetEntity(System.Int32,System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <summary>
+                Used to fetch one record using its id.
+            </summary>
+            <param name="id">Id of the record to retrieve. Must be a positive value larger than 0.</param>
+            <param name="skip">Defines how many child records should be skipped in the result.</param>
+            <param name="take">Defines how many child records should be returned. The maximum number is 500.</param>
+            <returns>Entity&lt;DetailRecord&gt;</returns>
+            <remarks>
+                The result is a object of type Entity&lt;DetailRecord&gt;.
+            
+                This is a complex type where we want to elaborate on 4 special properties
+                + **highlight**: Information for highlighting. Is always null, as we are not searching.
+                + **explanation**: For debugging or analysis we could return detailed information
+                on how the score is calculated and the result was composed.
+                Is always null.
+                + **_metadata**: This property returns the metadata of the archive record in a organized way for
+                displaying the data on a web form or similar.
+                + **_context**: The context returns the ancestors and descendants of the requested archive record.
+                There could be possibly thousands of descendants/children to a records. That is why, we allow to pass
+                a *skip* and *take* parameter to limit the number of returned child records.
+            
+                The other properties in the object are directly relevant to the requested archive record.
+                ___
+            
+                ### Example calls (restful):
+                ``` http
+                GET https://www.recherche.bar.admin.ch/recherche/api/v1/entities/1
+                ```
+                or
+                ``` http
+                GET https://www.recherche.bar.admin.ch/recherche/api/v1/entities/3812261?skip=0&amp;take=10
+                ```
+                ___
+            </remarks>
+        </member>
+        <member name="M:CMI.Web.Frontend.api.Controllers.ExternalController.GetEntities(System.String,System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <summary>
+                Used to fetch multiple records
+            </summary>
+            <param name="ids">
+                The id numbers of the records to retrieve as a comma separated list. Each value must be a positive value larger
+                than 0.
+                The number of ids that can be passed must be less than 1000
+            </param>
+            <param name="skip">Defines how many child records should be skipped in the result.</param>
+            <param name="take">Defines how many child records should be returned. The maximum number is 500.</param>
+            <returns>EntityResult&lt;TreeRecord&gt;</returns>
+            <remarks>
+                The result is a object of type Entity&lt;TreeRecord&gt;.
+            
+                This is a complex type where we have the properties
+                + **items**: A collection of Entity&lt;TreeRecord&gt;
+                + **paging**: Is always null, as there is no paging support for this operation.
+            
+                The individual items are of type Entity&lt;TreeRecord&gt;. Again we want to highlight 4 properties
+                + **highlight**: Information for highlighting. Is always null, as we are not searching.
+                + **explanation**: For debugging or analysis we could return detailed information
+                on how the score is calculated and the result was composed.
+                Is always null.
+                + **_metadata**: This property returns the metadata of the archive record in a organized way for
+                displaying the data on a web form or similar.
+                + **_context**: The context returns the ancestors and descendants of the requested archive record.
+                There could be possibly thousands of descendants/children to a records. That is why, we allow to pass
+                a *skip* and *take* parameter to limit the number of returned child records.
+            
+                The other properties in the object are directly relevant to the requested archive record.
+                ___
+            
+                ### Example calls (restful):
+                ``` http
+                GET https://www.recherche.bar.admin.ch/recherche/api/v1/entities?ids=1,412,42
+                ```
+                or
+                ``` http
+                GET https://www.recherche.bar.admin.ch/recherche/api/v1/entities?ids=123,455,312&amp;skip=0&amp;take=10
+                ```
+                ___
+            </remarks>
+        </member>
+        <member name="M:CMI.Web.Frontend.api.Controllers.ExternalController.Search(CMI.Web.Frontend.api.Search.SearchParameters)">
+            <summary>
+                Provides search capabilities
+            </summary>
+            <param name="search">The search parameters as <see cref="T:CMI.Web.Frontend.api.Search.SearchParameters" /></param>
+            <remarks>
+                The result is a object of type SearchResult&lt;SearchRecord&gt;.
+            
+                This is a complex type where we have the properties
+                + **entities**: The detailed result from the search containing an items collection and paging information.
+                The paging information contains the number of total hits.
+                + **facets**: A collection with several facet filters
+                + **enableExplanations**: Whether or not the option was set in the search request.
+                + **requireCaptcha**: Whether or not subsequent searches require a captcha verification code.
+            
+                ___
+            
+                ### Example calls (restful):
+                ``` http
+                POST https://www.recherche.bar.admin.ch/recherche/api/v1/entities/search
+                {
+                  "query": {
+                    "searchGroups": [
+                      {
+                        "searchFields": [
+                          {
+                            "value": "Pilot",
+                            "key": "allData"
+                          },
+                          {
+                            "key": "creationPeriod",
+                            "value": null
+                          }
+                        ],
+                        "fieldOperator": 1
+                      }
+                    ],
+                    "groupOperator": 1
+                  },
+                  "options": {
+                    "enableHighlighting": true,
+                    "enableAggregations": true
+                  },
+                  "paging": {
+                    "skip": 0,
+                    "take": 10,
+                    "orderBy": "",
+                    "sortOrder": ""
+                  }
+                }
+            
+                POST https://www.recherche.bar.admin.ch/recherche/api/v1/entities/search
+                {
+                  "query": {
+                    "searchGroups": [
+                      {
+                        "searchFields": [
+                          {
+                            "value": "Eisenbahn",
+                            "key": "allData"
+                          },
+                          {
+                            "key": "creationPeriod",
+                            "value": null
+                          }
+                        ],
+                        "fieldOperator": 1
+                      }
+                    ],
+                    "groupOperator": 1
+                  },
+                  "options": {
+                    "enableHighlighting": true,
+                    "enableAggregations": true
+                  },
+                  "paging": {
+                    "skip": 0,
+                    "take": 10,
+                    "orderBy": "",
+                    "sortOrder": ""
+                  },
+                  "facetsFilters": [
+                    {
+                      "filters": [
+                        "customFields.zugänglichkeitGemässBga:\"Frei zugänglich\""
+                      ],
+                      "facet": "customFields.zugänglichkeitGemässBga"
+                    },
+                    {
+                      "filters": [
+                        "aggregationFields.ordnungskomponenten:\"513 Armeestab\""
+                      ],
+                      "facet": "aggregationFields.ordnungskomponenten"
+                    }
+                  ]
+                }
+            
+                POST https://www.recherche.bar.admin.ch/recherche/api/v1/entities/search
+                {
+                  "query": {
+                    "searchGroups": [
+                      {
+                        "searchFields": [
+                          {
+                            "key": "title",
+                            "value": "Lastwagen"
+                          },
+                          {
+                            "key": "creationPeriod",
+                            "value": "1950-1990"
+                          }
+                        ],
+                        "fieldOperator": 1
+                      },
+                      {
+                        "searchFields": [
+                          {
+                            "key": "withinInfo",
+                            "value": "Schwerverkehr"
+                          }
+                        ],
+                        "fieldOperator": 3
+                      }
+                    ],
+                    "groupOperator": 1
+                  },
+                  "options": {
+                    "enableExplanations": false,
+                    "enableHighlighting": true,
+                    "enableAggregations": false
+                  },
+                  "paging": {
+                    "skip": 0,
+                    "orderBy": "",
+                    "sortOrder": "",
+                    "take": 10
+                  }
+                }
+                ```
+                ## Search field key
+                Here the complete list of fields that can be searched.
+            
+                | SearchField                           | Description       |
+                |---------------------------------------|-------------------|
+                | allData                               | Searches in **all** metadata fields that the database knows about, and are applicable for search. (Numbers or Booleans are usually excluded) **AND** textual data of referenced digital files. If this field is searched, this has to be done with at least 2 none wildcard characters.|
+                | allMetaData                           | Searches in all metadata fields.  |
+                | allPrimaryData                        | Searches in the textual data of referenced digital files, e.g. primaryData. |
+                | title                                 | Searches the title field. |
+                | creationPeriod                        | Searches a data range. The record must have been created in this period. Use 1950-1960 or 24.12.1950-1960 or simply 1914. |
+                | withinInfo                            | Searches the Within Info field. (Darin-Vermerk) |
+                | referenceCode                         | Searches for the reference code. (Signatur) |
+                | customFields.form                     | Searches for the identification of special types. (medium) and forms of organisation of documents. |
+                | formerReferenceCode                   | Searches for the former reference code. (Frühere Signatur) |
+                | customFields.land                     | Searches for the country. |
+                | customFields.zusatzkomponenteZac1     | Searches in the supplementary component field. (Zusatzkomponente) |
+                | customFields.aktenzeichen             | Searches for the reference number or file number field. (Aktenzeichen) |
+                | customFields.früheresAktenzeichen     | Searches for the former reference number or former file number field. (Früheres Aktenzeichen) |
+                | customFields.zugänglichkeitGemässBga  | Searches for the accessibility according to BGA. Possible values are 'Frei Zugänglich', 'In Schutzfrist' and 'Prüfung nötig' |
+            
+                ## Search field value
+                For a search at least one none wildcard character (*, ?) is needed
+            
+                ## Operators
+                Individual search groups can be linked with the following operators
+                + And = 1,
+                + Or = 2
+            
+                Search fields can be linked with the operators
+                + And = 1,
+                + Or = 2,
+                + Not = 3
+            
+                ## Facets
+                The possible facets are obtained with the response. You can then activate the returned facets as filters by
+                specifying them in the request.
+                The second sample above shows how to make a search using facets.
+            
+                ## Paging
+                If the request contains a value for take, this value must be less or equal than 100.
+            
+            </remarks>
+            <returns>SearchResult&lt;SearchRecords&gt;</returns>
+        </member>
+        <member name="M:CMI.Web.Frontend.api.Controllers.OrderController.ConvertDbItemsToDto(System.Collections.Generic.List{CMI.Contract.Order.OrderItem},CMI.Contract.Order.OrderType,System.Boolean)">
+            <summary>
+                Converts the database order items to an OrderItemDto array.
+                The OrderItemDto objects are returned to the calling UI.
+                For performance reasons security info is loaded when needed.
+            </summary>
+            <param name="orderItemsDb">The order items as fetched from the database.</param>
+            <param name="orderType">Type of the order.</param>
+            <param name="needsSecurityInfo">
+                if set to <c>true</c> the properties <c>EinsichtsbewilligungNotwendig</c> and <c>CouldNeedAReason</c> are
+                correctly filled using information from the elastic index.
+            </param>
+            <returns>OrderItemDto[].</returns>
+        </member>
+        <member name="M:CMI.Web.Frontend.api.Controllers.OrderController.FormatZeitraumAccordingToSipSpecification(System.String)">
+            <summary>
+                Der Zeitraum wird vom Client in einem der folgenden Formate geliefert
+                JJJJ
+                JJJJ-JJJJ
+                TT.MM.JJJJ
+                TT.MM.JJJJ-TT.MM.JJJJ
+                respektive Variationen davon.
+                Wir prüfen nicht mehr, ob diese Formate korrekt sind, sondern behandeln nur die Spezialfälle ab. Dies sind:
+                - Nur Angabe Jahr oder Datum
+                - Leere Angabe
+            </summary>
+            <param name="zeitraum"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CMI.Web.Frontend.api.Controllers.UserController.GetUser">
+            <summary>
+                Gibt Informationen zum aktuell eingeloggten Benutzer
+            </summary>
+        </member>
+        <member name="M:CMI.Web.Frontend.api.Controllers.UserController.UpdateUserProfile(CMI.Access.Sql.Viaduc.User)">
+            <summary>
+                Aktualisiert Daten des eingeloggten Benutzers
+            </summary>
+        </member>
+        <member name="M:CMI.Web.Frontend.api.Controllers.ApiFrontendControllerBase.CouldNeedAReason(CMI.Contract.Common.ElasticArchiveRecord,CMI.Access.Sql.Viaduc.UserAccess)">
+            <summary>
+                Falls die Methode true zurückgibt, muss der der Benutzer
+                A) wählen das keine Personendaten vorhanden sind oder
+                B) ein Grund auswählen
+            </summary>
+        </member>
+        <member name="P:CMI.Web.Frontend.api.Dto.OrderItemDto.EinsichtsbewilligungNotwendig">
+            <summary>
+                EinsichtsbewilligungNotwendig ist nur relevant für OrderItems aus dem Bestellkorb.
+                Zeigt anhand der Access Tokens ob eine Einsichtsbewilligung notwendig ist.
+            </summary>
+            <value><c>true</c> if [einsichtsbewilligung notwendig]; otherwise, <c>false</c>.</value>
+        </member>
+        <member name="P:CMI.Web.Frontend.api.Dto.OrderItemDto.CouldNeedAReason">
+            <summary>
+                Zeigt an, ob eine Begründung für die Einsichtsbewilligung notwendig ist.
+            </summary>
+            <value><c>true</c> if [could need a reason]; otherwise, <c>false</c>.</value>
+        </member>
+        <member name="P:CMI.Web.Frontend.api.Dto.OrderParams.OrderIdsToExclude">
+            <summary>
+                Wird gesetzt, wenn der Client sich für einige Aufträge entscheiden muss,
+                weil sein Kontingent sonst überschritten würde
+            </summary>
+        </member>
+        <member name="M:CMI.Web.Frontend.api.Elastic.ElasticService.QueryForParentId(System.Int32,CMI.Access.Sql.Viaduc.UserAccess)">
+            <summary>
+            Die Methode liefert eine Liste mit allen Kindern der übergebenen Vater-Id unter Berücksichtigung der Benutzerberechtigung.
+            </summary>
+            <remarks>
+            Wegen PVW-1178 (Timeout beim Öffnen von grossen anonymisierten Serien in BAR-Rolle) wurde die Methode dahingehend optimiert,
+            dass die Query Resultate vom Typ <see cref="T:CMI.Contract.Common.ElasticArchiveDbRecord"/> anfordert. Dabei werden aber über die SourceFilter
+            nur diejenigen Eingenschaften zurückgeliefert, die es für TreeRecords benötigt, plus die nicht anonymisierten Felder.
+            Dies damit es für das sichtbarmachen der Daten für BAR Benutzer nicht erneut zusätzliche Elastic Abfragen braucht.
+            </remarks>
+            <param name="id">Die ArchiveRecord ID der VE dessen Kinder geholt werden sollen.</param>
+            <param name="access">Die Zugriffsrechte des Benutzers</param>
+            <returns></returns>
+        </member>
+        <member name="M:CMI.Web.Frontend.api.Elastic.ElasticService.GetfilteredAggregations(Nest.AggregateDictionary,CMI.Web.Frontend.api.Search.FacetFilters[],System.String@)">
+            <summary>
+                Die Methode für die folgenden Filterungen durch:
+                - Es wird nur eine creationPeriod Facette zurückgegeben
+                - Aggregationen die mit 'facet_' beginnen werden nicht zurückgegeben. Stattdessen wird das Child von diesen
+                Aggregationen zurückgegeben.
+            </summary>
+        </member>
+        <member name="M:CMI.Web.Frontend.api.Elastic.QueryTransformationService.TransformQuery(Nest.QueryContainer)">
+            <summary>
+            Transforms an existing Query that may contain anonynized fields to a query where the field names are
+            replaced by the unanonymized field names.
+            </summary>
+            <param name="querycontainer"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CMI.Web.Frontend.api.Elastic.SearchRequestBuilder.GetSecuredFacetFilters(System.String[])">
+            <summary>
+                Diese Methode hat die Aufgabe sicherzustellen, das kein Zugriff auf ein unerlaubtes Elastic Feld erfolgt.
+            </summary>
+        </member>
+        <member name="M:CMI.Web.Frontend.api.Providers.EntityProvider.CheckSearchParameters(CMI.Web.Frontend.api.Search.SearchParameters,System.String)">
+            <summary>
+                Falls searchParameters i.O. ist, gibt die Methode string.Empty zurück.
+                Andernfalls eine Fehlermeldung.
+                Nicht technische Fehlermeldungen werden übersetzt.
+            </summary>
+        </member>
+        <member name="P:CMI.Web.Frontend.api.Search.Entity`1.ExtensionData">
+            <summary>
+                Bewirkt, dass die Properties von T beim Serialisieren zu JSON als direkte Properties dieser Klasse angelegt werden
+            </summary>
+        </member>
+        <member name="M:CMI.Web.Frontend.BusConfig.GetRequestClient``1(System.String)">
+            <summary>
+                Registers a request/response constructor callback for a DI container.
+            </summary>
+            <typeparam name="T1">The type of the Request.</typeparam>
+            <param name="serviceUrl">The service URL.</param>
+            <returns>IRequestClient&lt;T1, T2&gt;.</returns>
+        </member>
+        <member name="M:CMI.Web.Frontend.BusConfig.RegisterDownloadAssetCallback">
+            <summary>
+                Registers the download asset request/response constructur callback for a DI containter.
+            </summary>
+            <returns>IRequestClient&lt;DownloadAsset, DownloadAssetResult&gt;.</returns>
+        </member>
+        <member name="M:CMI.Web.Frontend.BusConfig.RegisterGetAssetStatusCallback">
+            <summary>
+                Registers the get asset status callback.
+            </summary>
+            <returns>IRequestClient&lt;GetAssetStatusRequest, GetAssetStatusResult&gt;.</returns>
+        </member>
+        <member name="M:CMI.Web.Frontend.BusConfig.RegisterPrepareAssetCallback">
+            <summary>
+                Registers the prepare asset callback.
+            </summary>
+            <returns>IRequestClient&lt;PrepareAssetRequest, PrepareAssetResult&gt;.</returns>
+        </member>
+        <member name="M:CMI.Web.Frontend.BusConfig.RegisterStartOnboardingProcessClient">
+            <summary>
+                Registers the start onboarding process callback
+            </summary>
+        </member>
+        <member name="M:CMI.Web.Frontend.BusConfig.RegisterHandleOnboardingCallbackClient">
+            <summary>
+                Registers the start onboarding handle callback
+            </summary>
+        </member>
+        <member name="T:CMI.Web.Frontend.Helpers.KontrollstellenInformer">
+            <summary>
+                Die Klasse dient zur automatischen E-Mail-Benachrichtigung der Kontrollstellen über Einsichtnahmen von VE in SF
+                durch AS-Benutzer
+            </summary>
+        </member>
+        <member name="M:CMI.Web.Frontend.Helpers.IUsageAnalyzer.UpdateUsageStatistic(System.String,System.Net.Http.HttpRequestMessage,System.Int32)">
+            <param name="userId"></param>
+            <param name="request"></param>
+            <param name="usages">Anzahl Verwendungen</param>
+        </member>
+        <member name="T:CMI.Web.Frontend.Helpers.UsageAnalyzer">
+            <summary>
+                Aufgabe der Klasse: Ermittlung ob ein vorgegebenes Limit überschritten wurde
+            </summary>
+        </member>
+        <member name="M:CMI.Web.Frontend.Helpers.UsageAnalyzer.UpdateUsageStatistic(System.String,System.Net.Http.HttpRequestMessage,System.Int32)">
+            <param name="userId"></param>
+            <param name="request"></param>
+            <param name="usages">Anzahl Verwendungen</param>
+        </member>
+        <member name="M:CMI.Web.Frontend.Helpers.VeExportRecordHelper.CreateExcelFile(System.Collections.Generic.List{CMI.Web.Frontend.Helpers.VeExportRecord},System.String,System.String,System.String)">
+            <summary>
+             string = undefined
+            </summary>
+            <param name="items">The row values</param>
+            <param name="language">Selected language</param>
+            <param name="fileName">The desired file name</param>
+            <param name="defaultName">A simple file name without special characters</param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>
